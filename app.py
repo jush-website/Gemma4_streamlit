@@ -176,7 +176,7 @@ with tab2:
             with st.spinner(f"正在網路上搜尋「{query}」的最新資料..."):
                 try:
                     # 使用 Tavily 專業 AI 搜尋引擎
-                    tavily_client = TavilyClient(api_key="tvly-這裡換成你的金鑰")
+                    tavily_client = TavilyClient(api_key="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")
                     response = tavily_client.search(query=query, max_results=5)
                     results = response.get('results', [])
                     

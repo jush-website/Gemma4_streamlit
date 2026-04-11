@@ -2,4 +2,4 @@ streamlit
 PyMuPDF
 python-docx
 litellm
-duckduckgo-search>=6.2.10
+tavily-python

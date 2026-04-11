@@ -176,7 +176,7 @@ with tab2:
             with st.spinner(f"正在網路上搜尋「{query}」的最新資料..."):
                 try:
                     # 執行網路爬蟲
-                    results = list(DDGS().text(query, max_results=5))
+                    results = list(DDGS().text(query, max_results=5, backend="html"))
                     
                     if not results:
                         st.error("❌ 找不到相關資料，或 DuckDuckGo 伺服器暫時阻擋了請求。")

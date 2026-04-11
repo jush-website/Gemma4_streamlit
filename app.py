@@ -8,7 +8,7 @@ from duckduckgo_search import DDGS
 #streamlit run app.py
 
 # ================= 設定區 =================
-OLLAMA_API_BASE = "http://140.127.22.140:11434"
+OLLAMA_API_BASE = "https://bonding-malt-nimbly.ngrok-free.dev"
 MODEL_NAME = "ollama/gemma4:e4b" 
 # ==========================================
 

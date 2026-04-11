@@ -87,7 +87,7 @@ def summarize_web_results(query, search_results):
 [請嚴格列出 <DATA> 中的來源標題、網址與一句話摘要]
 
 ## 💡 後續研究建議
-[提出 1~3 個建議]
+[提出 1~5 個建議]
 </FORMAT>
 """
     try:
@@ -138,7 +138,7 @@ with tab1:
                 for i, file in enumerate(uploaded_files):
                     raw_text = extract_text_from_uploaded_file(file)
                     if raw_text:
-                        raw_text = raw_text[:8192] 
+                        raw_text = raw_text[:6000] 
                         ai_result = format_with_agent(raw_text, file.name)
                         combined_report += f"\n\n{ai_result}\n\n---"
                     

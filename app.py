@@ -3,7 +3,7 @@ import time
 import fitz        
 import docx        
 from litellm import completion
-from duckduckgo_search import DDGS
+from tavily import TavilyClient
 
 #streamlit run app.py
 
@@ -175,17 +175,19 @@ with tab2:
         else:
             with st.spinner(f"正在網路上搜尋「{query}」的最新資料..."):
                 try:
-                    # 執行網路爬蟲
-                    results = list(DDGS().text(query, max_results=5, backend="lite"))
+                    # 使用 Tavily 專業 AI 搜尋引擎
+                    tavily_client = TavilyClient(api_key="tvly-這裡換成你的金鑰")
+                    response = tavily_client.search(query=query, max_results=5)
+                    results = response.get('results', [])
                     
                     if not results:
-                        st.error("❌ 找不到相關資料，或 DuckDuckGo 伺服器暫時阻擋了請求。")
+                        st.error("❌ 找不到相關資料。")
                     else:
                         search_context = ""
                         for i, res in enumerate(results):
-                            search_context += f"來源 {i+1}: {res.get('title', '')}\n網址: {res.get('href', '')}\n摘要: {res.get('body', '')}\n\n"
+                            search_context += f"來源 {i+1}: {res.get('title', '')}\n網址: {res.get('url', '')}\n摘要: {res.get('content', '')}\n\n"
                         
-                        st.info("✅ 成功抓取網頁資料，正在交給大腦進行總結...")
+                        st.info("✅ 成功抓取 Tavily 網頁資料，正在交給大腦進行總結...")
                         
                         # 呼叫 AI
                         formatted_md = summarize_web_results(query, search_context)

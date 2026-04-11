@@ -1,0 +1,5 @@
+streamlit
+PyMuPDF
+python-docx
+litellm
+duckduckgo-search

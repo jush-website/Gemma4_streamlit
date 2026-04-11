@@ -3,29 +3,25 @@ import time
 import fitz        
 import docx        
 from litellm import completion
-from tavily import TavilyClient
-
-#streamlit run app.py
+from tavily import TavilyClient  # 👈 換成 Tavily 套件
 
 # ================= 設定區 =================
 OLLAMA_API_BASE = "https://bonding-malt-nimbly.ngrok-free.dev"
 MODEL_NAME = "ollama/gemma4:e4b" 
+TAVILY_API_KEY = "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"  # 👈 記得貼上你的專屬金鑰！
 # ==========================================
 
 # ---------------------------------------------------------
 # 【核心工具區】：處理上傳的檔案
 # ---------------------------------------------------------
 def extract_text_from_uploaded_file(uploaded_file):
-    """處理 Streamlit 上傳的檔案物件"""
     filename = uploaded_file.name
     ext = filename.split('.')[-1].lower()
-    
     try:
         if ext in ["txt", "md", "csv"]:
             return uploaded_file.getvalue().decode("utf-8")
         elif ext == "pdf":
             text = ""
-            # Streamlit 讀取 PDF 的特殊寫法
             with fitz.open(stream=uploaded_file.read(), filetype="pdf") as doc:
                 for page in doc: text += page.get_text()
             return text
@@ -69,8 +65,12 @@ def format_with_agent(text_content, filename):
 
 def summarize_web_results(query, search_results):
     system_prompt = f"""
-請將 <DATA> 裡的網路搜尋資料，嚴格轉換成 <FORMAT> 指定的 Markdown 格式。
+請作為一位專業的資料分析師。你的任務是將 <DATA> 裡的網路搜尋資料，彙整成 <FORMAT> 指定的 Markdown 格式。
 絕對禁止輸出任何問候語或額外文字。必須使用繁體中文 (台灣)。
+
+⚠️ 【重要防呆機制】：
+在整理之前，請先檢查 <DATA> 裡的內容是否與使用者的查詢主題「{query}」具有實質關聯性。
+如果搜尋結果完全偏離主題，請務必在「📝 核心重點摘要」的第一點加上強烈警告：「⚠️ 警告：搜尋引擎抓取的資料與您的查詢主題不符！」
 
 <DATA>
 {search_results}
@@ -80,13 +80,14 @@ def summarize_web_results(query, search_results):
 # 🌐 網路搜尋報告：{query}
 
 ## 📝 核心重點摘要
+[若資料不符，請先輸出警告標語]
 [請以條列式總結 <DATA> 中的資訊]
 
 ## 📚 參考文獻與出處
 [請嚴格列出 <DATA> 中的來源標題、網址與一句話摘要]
 
 ## 💡 後續研究建議
-[提出 1~5 個建議]
+[提出 1~3 個建議]
 </FORMAT>
 """
     try:
@@ -104,27 +105,22 @@ def summarize_web_results(query, search_results):
 # ---------------------------------------------------------
 # 【網頁介面區】：Streamlit 魔法開始
 # ---------------------------------------------------------
-# 1. 設定網頁標題與圖示
 st.set_page_config(page_title="萬能 AI 代理人指揮中心", page_icon="🤖", layout="wide")
 
-# 2. 側邊欄 (放一些設定或說明)
 with st.sidebar:
     st.title("⚙️ 系統設定")
     st.info(f"📍 目前連線：{OLLAMA_API_BASE}\n\n🧠 使用模型：{MODEL_NAME}")
     st.markdown("---")
     st.write("這是一個由 Streamlit 驅動的地端 AI 代理人系統。")
 
-# 3. 主畫面標題
 st.title("🌟 萬能 AI 代理人指揮中心")
 st.markdown("請選擇你要執行的任務：")
 
-# 4. 使用 Tabs (頁籤) 來切換不同功能
 tab1, tab2 = st.tabs(["📂 智慧文件彙整", "🌐 自動文獻檢索"])
 
 # ================= 頁籤一：文件彙整 =================
 with tab1:
     st.header("📂 上傳檔案讓 AI 幫你整理")
-    # Streamlit 超強的檔案上傳元件，支援多選與拖曳！
     uploaded_files = st.file_uploader(
         "支援格式：PDF, Word, TXT, MD, CSV", 
         type=["pdf", "docx", "txt", "md", "csv"], 
@@ -137,26 +133,21 @@ with tab1:
                 combined_report = f"# 📚 多檔案彙整分析報告\n\n"
                 combined_report += f"- **處理日期：** {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n---"
                 
-                # 建立一個進度條
                 progress_bar = st.progress(0)
                 
                 for i, file in enumerate(uploaded_files):
                     raw_text = extract_text_from_uploaded_file(file)
                     if raw_text:
-                        raw_text = raw_text[:8192] # 安全閥
+                        raw_text = raw_text[:8192] 
                         ai_result = format_with_agent(raw_text, file.name)
                         combined_report += f"\n\n{ai_result}\n\n---"
                     
-                    # 更新進度條
                     progress_bar.progress((i + 1) / len(uploaded_files))
                 
                 st.success("🎉 彙整完成！")
-                
-                # 在網頁上直接預覽結果
                 st.markdown("### 報告預覽")
                 st.markdown(combined_report)
                 
-                # 提供下載按鈕
                 st.download_button(
                     label="📥 下載 Markdown 報告",
                     data=combined_report,
@@ -175,8 +166,8 @@ with tab2:
         else:
             with st.spinner(f"正在網路上搜尋「{query}」的最新資料..."):
                 try:
-                    # 使用 Tavily 專業 AI 搜尋引擎
-                    tavily_client = TavilyClient(api_key="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")
+                    # 👈 呼叫專業的 Tavily API
+                    tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
                     response = tavily_client.search(query=query, max_results=5)
                     results = response.get('results', [])
                     
@@ -189,13 +180,11 @@ with tab2:
                         
                         st.info("✅ 成功抓取 Tavily 網頁資料，正在交給大腦進行總結...")
                         
-                        # 呼叫 AI
                         formatted_md = summarize_web_results(query, search_context)
                         
                         st.success("🎉 報告生成完畢！")
                         st.markdown(formatted_md)
                         
-                        # 下載按鈕
                         st.download_button(
                             label="📥 下載搜尋報告",
                             data=formatted_md,

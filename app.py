@@ -3,7 +3,7 @@ import time
 import fitz        
 import docx        
 from litellm import completion
-from tavily import TavilyClient  # 👈 換成 Tavily 套件
+from tavily import TavilyClient 
 
 # ================= 設定區 =================
 OLLAMA_API_BASE = "https://bonding-malt-nimbly.ngrok-free.dev"

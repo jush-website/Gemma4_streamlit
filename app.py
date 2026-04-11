@@ -3,7 +3,7 @@ import time
 import fitz        
 import docx        
 from litellm import completion
-from ddgs import DDGS
+from duckduckgo_search import DDGS
 
 #streamlit run app.py
 

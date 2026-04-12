@@ -7,7 +7,7 @@ from tavily import TavilyClient
 
 # ================= 設定區 =================
 OLLAMA_API_BASE = "https://bonding-malt-nimbly.ngrok-free.dev"
-MODEL_NAME = "ollama/gemma4:e2b" 
+MODEL_NAME = "ollama/gemma4:2b" 
 TAVILY_API_KEY = "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"  
 # ==========================================
 

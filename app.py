@@ -115,15 +115,14 @@ def summarize_web_results(query, search_results):
 # ---------------------------------------------------------
 # 【網頁介面區】：Streamlit 魔法開始
 # ---------------------------------------------------------
-st.set_page_config(page_title="萬能 AI 代理人指揮中心", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="Gemma4 彙整中心", page_icon="🤖", layout="wide")
 
 with st.sidebar:
     st.title("⚙️ 系統設定")
     st.info(f"📍 目前連線：{OLLAMA_API_BASE}\n\n🧠 使用模型：{MODEL_NAME}")
     st.markdown("---")
-    st.write("這是一個由 Streamlit 驅動的地端 AI 代理人系統。")
+    st.write("這是一個架設於 Streamlit 的地端 AI 系統。")
 
-st.title("🌟 萬能 AI 代理人指揮中心")
 st.markdown("請選擇你要執行的任務：")
 
 tab1, tab2 = st.tabs(["📂 智慧文件彙整", "🌐 自動文獻檢索"])

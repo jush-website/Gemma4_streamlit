@@ -128,7 +128,7 @@ with st.sidebar:
     st.title("⚙️ 系統設定")
     st.info(f"📍 目前連線：{OLLAMA_API_BASE}\n\n🧠 使用模型：{MODEL_NAME}")
     st.markdown("---")
-    st.write("這是一個架設於 Streamlit 的地端 AI 系統。")
+    st.write("這是一個架設於 Streamlit 的本地端 Gemma4 系統。")
 
 st.markdown("請選擇你要執行的任務：")
 

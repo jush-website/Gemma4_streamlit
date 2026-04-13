@@ -189,7 +189,7 @@ with tab1:
 # ================= 頁籤二：網路搜尋 =================
 with tab2:
     st.header("🌐 輸入關鍵字，AI 自動爬文寫報告")
-    query = st.text_input("🔍 請輸入你想研究的關鍵字或主題：", placeholder="例如：2024 LLM 發展趨勢")
+    query = st.text_input("🔍 請輸入你想研究的關鍵字或主題：", placeholder="例如：2026 LLM 發展趨勢")
     
     # 同樣為搜尋頁籤加入重置按鈕
     col3, col4 = st.columns([1, 1])

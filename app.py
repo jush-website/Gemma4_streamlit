@@ -1,9 +1,9 @@
 import streamlit as st
-import time
 import fitz        
 import docx        
 from litellm import completion
 from tavily import TavilyClient 
+from datetime import datetime, timezone, timedelta # 匯入時間模組以修正時區
 
 # ================= 設定區 =================
 OLLAMA_API_BASE = "https://bonding-malt-nimbly.ngrok-free.dev"
@@ -82,6 +82,7 @@ def format_with_agent(text_content, filename):
 def summarize_web_results(query, search_results):
     system_prompt = f"""
     你是一位專業的研究分析師。你的任務是將 <SEARCH_RESULTS> 標籤內抓取到的網路搜尋資料，統整成一份結構清晰、具備洞察力的研究報告。
+
     【嚴格遵守事項】：
     1. 絕對禁止輸出任何問候語或額外解釋，直接輸出 Markdown 報告。
     2. 使用繁體中文 (台灣) 撰寫。
@@ -143,17 +144,32 @@ with tab1:
     )
 
     if uploaded_files:
-        if st.button("🚀 開始彙整", type="primary"):
+        # 使用欄位將按鈕並排
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            start_btn = st.button("🚀 開始彙整", type="primary", use_container_width=True)
+            
+        with col2:
+            if st.button("🗑️ 清空並重置", use_container_width=True):
+                st.rerun() # 強制重新載入頁面
+
+        if start_btn:
+            st.info("💡 提示：若需中斷分析，請點擊畫面右上角的「🛑 Stop」按鈕。")
             with st.spinner("AI 正在卯起來閱讀並整理中，請稍候..."):
                 combined_report = f"# 📚 多檔案彙整分析報告\n\n"
-                combined_report += f"- **處理日期：** {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n---"
+                
+                # 設定台灣時區 (UTC+8)
+                tw_timezone = timezone(timedelta(hours=8))
+                current_time = datetime.now(tw_timezone).strftime('%Y-%m-%d %H:%M:%S')
+                combined_report += f"- **處理日期：** {current_time}\n\n---"
                 
                 progress_bar = st.progress(0)
                 
                 for i, file in enumerate(uploaded_files):
                     raw_text = extract_text_from_uploaded_file(file)
                     if raw_text:
-                        raw_text = raw_text[:6000] 
+                        raw_text = raw_text[:8000] # 放寬擷取字元上限，提升完整度
                         ai_result = format_with_agent(raw_text, file.name)
                         combined_report += f"\n\n{ai_result}\n\n---"
                     
@@ -175,13 +191,24 @@ with tab2:
     st.header("🌐 輸入關鍵字，AI 自動爬文寫報告")
     query = st.text_input("🔍 請輸入你想研究的關鍵字或主題：", placeholder="例如：2024 LLM 發展趨勢")
     
-    if st.button("📡 開始檢索", type="primary"):
+    # 同樣為搜尋頁籤加入重置按鈕
+    col3, col4 = st.columns([1, 1])
+    
+    with col3:
+        search_btn = st.button("📡 開始檢索", type="primary", use_container_width=True)
+        
+    with col4:
+        if st.button("🗑️ 清空搜尋", use_container_width=True):
+            st.rerun()
+
+    if search_btn:
         if not query:
             st.warning("請先輸入關鍵字喔！")
         else:
+            st.info("💡 提示：若需中斷搜尋，請點擊畫面右上角的「🛑 Stop」按鈕。")
             with st.spinner(f"正在網路上搜尋「{query}」的最新資料..."):
                 try:
-                    # 👈 呼叫專業的 Tavily API
+                    # 呼叫專業的 Tavily API
                     tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
                     response = tavily_client.search(query=query, max_results=5)
                     results = response.get('results', [])
